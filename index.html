@@ -126,7 +126,7 @@
     let angle = 0;
     let introStep = 0;
     let idx = 0;
-    const revealed = [];
+    const revealed = []; // guarda ângulos confirmados pelo jogador (em graus inteiros)
 
     const seqNotaveis = [30,45,60,90];
     const siblingsMap = {30:150, 45:135, 60:120, 90:270};
@@ -167,21 +167,37 @@
       return parts;
     };
 
+    // Helper: ângulo atual está revelado?
+    function isAngleRevealed(deg) {
+      // conside ra revelado se houver algum item em 'revealed' dentro da tolerância de +/- 0.5°
+      return revealed.some(r => Math.abs(r - deg) <= 0.5);
+    }
+
     // ==================== Textos ====================
     const introLines = [
-`Oi! Eu sou o Cosmos, um pequeno guardião de órbita. 🌌\nOntem, uma tempestade de dados rasgou o céu e... POOF! 💥 o nosso Círculo Trigonométrico se despedaçou!`,
+`Oi! Eu sou o Cosmos, um pequeno guardião de órbita. 🌌
+Ontem, uma tempestade de dados rasgou o céu e... POOF! 💥 o nosso Círculo Trigonométrico se despedaçou!`,
 `Esse círculo é muito importante! Ele é como um mapa cósmico onde cada ponto conta a história de um ângulo. ⭕`,
 `Você já conhece os ângulos, né? Pois bem, aqui no meu mundo, a gente também fala uma outra língua: a dos radianos! Eles são como uma tradução mágica dos ângulos — outra forma de medir o mesmo giro, o mesmo caminho pelo círculo.`,
 `E tem mais! Cada pontinho desse círculo guarda uma coordenada especial, formada por dois números: o cosseno e o seno. Juntos, eles dizem exatamente onde o ângulo mora dentro do círculo.`,
-`Ah, e o mais incrível: o nosso círculo tem raio igual a 1. ✨\nIsso faz dele um círculo perfeito — um lugar onde cada posição já mostra o valor exato das coordenadas, sem precisar de nenhuma conta complicada!`,
+`Ah, e o mais incrível: o nosso círculo tem raio igual a 1. ✨
+Isso faz dele um círculo perfeito — um lugar onde cada posição já mostra o valor exato das coordenadas, sem precisar de nenhuma conta complicada!`,
 `Então... que tal me ajudar a reconstruir o Círculo Trigonométrico e devolver a harmonia ao cosmos? 🚀`
     ];
 
     const explicacaoRadianos =
-`Como eu tinha dito para você, aqui no nosso universo, os ângulos também têm outro nome? Nós chamamos eles de radianos!\nUm radiano é uma forma de medir ângulos usando o próprio raio do círculo.\nImagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos 1 radiano.\nE sabe o que é ainda mais incrível? ✨\nπ radianos (pi radianos) equivalem exatamente a 180°!\nIsso quer dizer que meio círculo — de 0° até 180° — é igual a π radianos.`;
+`Como eu tinha dito para você, aqui no nosso universo, os ângulos também têm outro nome? Nós chamamos eles de radianos!
+Um radiano é uma forma de medir ângulos usando o próprio raio do círculo.
+Imagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos 1 radiano.
+E sabe o que é ainda mais incrível? ✨
+π radianos (pi radianos) equivalem exatamente a 180°!
+Isso quer dizer que meio círculo — de 0° até 180° — é igual a π radianos.`;
 
     const explicacaoCoordenadas =
-`Cada ponto do nosso círculo tem uma coordenada especial — dois números mágicos: o cosseno (cos) e o seno (sen).\nO cosseno representa o quanto o ponto anda no eixo x (para os lados), e o seno mostra o quanto ele sobe ou desce no eixo y.\nComo o raio do círculo é 1, esses valores sempre ficam entre -1 e 1.\nAssim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
+`Cada ponto do nosso círculo tem uma coordenada especial — dois números mágicos: o cosseno (cos) e o seno (sen).
+O cosseno representa o quanto o ponto anda no eixo x (para os lados), e o seno mostra o quanto ele sobe ou desce no eixo y.
+Como o raio do círculo é 1, esses valores sempre ficam entre -1 e 1.
+Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
 
     // ==================== DOM helpers ====================
     const $title = document.getElementById('title');
@@ -227,9 +243,10 @@
       document.getElementById('btnLivre').addEventListener('click', () => { phase = 99; angle = 0; setMessage("Modo livre: explore ângulos, radianos e projeções à vontade."); buildPhaseCircle(); });
     }
 
-    function circleSVG(angleDeg, revealedAngles, target) {
-      const W = 440, H = 440; // usado para evitar corte dos rótulos
-      const M = 16; // margem interna
+    // ============ Render do círculo ============
+    function circleSVG(angleDeg, revealedAngles, target, showAngleBadge = true) {
+      const W = 440, H = 440;
+      const M = 16;
       const R = 160, cx = 220, cy = 220;
       const rad = toRad(angleDeg);
       const x = cx + R*Math.cos(rad);
@@ -239,11 +256,9 @@
       const arcColor = stg==='perfect' ? '#10b981' : stg==='near' ? '#f59e0b' : '#ef4444';
       const pointerColor = arcColor;
 
-      // util para manter coordenadas dentro da área visível
       const clampX = (vx) => Math.max(M, Math.min(vx, W - M));
       const clampY = (vy) => Math.max(M, Math.min(vy, H - M));
 
-      // Quadrantes
       const quadFill = (q) => ({1:'rgba(16,185,129,.12)',2:'rgba(244,114,182,.12)',3:'rgba(34,197,94,.10)',4:'rgba(250,204,21,.10)'}[q]);
       const wedge = (start) => {
         const rs = toRad(start), re = toRad(start+90);
@@ -269,21 +284,18 @@
           </g>`;
       }).join("");
 
-      // projeções (cos em x, sen em y)
       const px = x, py = y;
       const projLines = `
         <line x1="${px}" y1="${py}" x2="${px}" y2="${cy}" stroke="#f97316" stroke-dasharray="6 4"/>  
         <line x1="${px}" y1="${cy}" x2="${cx}" y2="${cy}" stroke="#60a5fa" stroke-dasharray="6 4"/>  
       `;
 
-      // lógica para posicionar o label do seno sem cortar
-      const onRight = Math.cos(rad) >= 0; // ponto está à direita do centro?
+      const onRight = Math.cos(rad) >= 0;
       const sinAnchor = onRight ? 'end' : 'start';
       const sinXRaw = onRight ? (px - 12) : (px + 12);
       const sinX = clampX(sinXRaw);
       const sinY = clampY((py + cy) / 2 - 6);
 
-      // cos label fica no meio da projeção horizontal, normalmente seguro
       const cosX = clampX((px + cx) / 2);
       const cosY = clampY(cy + 16);
 
@@ -292,7 +304,6 @@
         <text x="${sinX}" y="${sinY}" fill="#fdba74" font-weight="900" text-anchor="${sinAnchor}" style="paint-order: stroke; stroke: rgba(0,0,0,.65); stroke-width: 3; pointer-events:none;">sen θ = ${sinNum(angleDeg)}</text>
       `;
 
-      // ângulo setorial
       const arcR = 46;
       return `
       <svg width="${W}" height="${H}" style="overflow: visible">
@@ -304,7 +315,6 @@
         </defs>
         <circle cx="${cx}" cy="${cy}" r="${R+14}" fill="url(#glow)"/>
 
-        <!-- Quadrantes coloridos e rótulos de sinais -->
         <path d="${wedge(0)}" fill="${quadFill(1)}"/>
         <path d="${wedge(90)}" fill="${quadFill(2)}"/>
         <path d="${wedge(180)}" fill="${quadFill(3)}"/>
@@ -316,23 +326,20 @@
 
         ${revealedDots}
 
-        <!-- Arco do ângulo com cor dinâmica -->
-        <path d="M ${cx+arcR} ${cy} A ${arcR} ${arcR} 0 ${angleDeg>180?1:0} 0 ${cx+arcR*Math.cos(rad)} ${cy-arcR*Math.sin(rad)}" fill="none" stroke="${arcColor}" stroke-width="4"/>
+        <path d="M ${cx+arcR} ${cy} A ${arcR} ${arcR} 0 ${angleDeg>180?1:0} 0 ${cx+arcR*Math.cos(rad)} ${cy-arcR*Math.sin(rad)}" fill="none" stroke="${pointerColor}" stroke-width="4"/>
 
-        <!-- Projeções: linhas antes, rótulos depois para evitar sobreposição -->
         ${projLines}
 
-        <!-- Ponteiro -->
         <line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${pointerColor}" stroke-width="2.5"/>
         <circle cx="${x}" cy="${y}" r="7.5" fill="${pointerColor}" stroke="#fff"/>
 
-        <!-- Badge do ângulo atual -->
-        <g style="pointer-events:none;">
-          <rect x="${x+10}" y="${y-28}" rx="8" ry="8" width="68" height="24" fill="${arcColor}" opacity=".92"/>
-          <text x="${x+44}" y="${y-12}" font-weight="900" text-anchor="middle">${labelAngle}</text>
-        </g>
+        <!-- Badge do ângulo atual (controlado por showAngleBadge) -->
+        ${showAngleBadge ? `
+          <g style="pointer-events:none;">
+            <rect x="${x+10}" y="${y-28}" rx="8" ry="8" width="68" height="24" fill="${pointerColor}" opacity=".92"/>
+            <text x="${x+44}" y="${y-12}" font-weight="900" text-anchor="middle">${labelAngle}</text>
+          </g>` : ''}
 
-        <!-- Rótulos por cima de tudo (com ancoragem dinâmica e clamp) -->
         ${projLabels}
       </svg>`;
     }
@@ -361,12 +368,22 @@
       const stg = proximityStage(angle, target);
       const confirmColor = stg==='perfect' ? 'green' : stg==='near' ? 'orange' : 'slate';
 
+      // Regras de exibição:
+      // - Modo livre (99): sempre mostra o ângulo no badge e na HUD.
+      // - Jornada: só mostra se o ângulo atual já foi revelado (confirmado).
+      const showBadge = (phase===99) || isAngleRevealed(angle);
+      const showHudAngle = (phase===99) || isAngleRevealed(angle);
+
       $content.innerHTML = `
         <div class="grid">
           <div>
-            <div class="svg-wrap" id="svgWrap">${circleSVG(angle, revealed, target)}</div>
+            <div class="svg-wrap" id="svgWrap">${circleSVG(angle, revealed, target, showBadge)}</div>
             <div class="row" style="margin-top:6px">
-              <div style="font-weight:900">θ = <span id="degOut">${angle}</span>° | rad ≈ <span id="radOut">${(toRad(angle)).toFixed(3)}</span> | (cosθ, senθ) ≈ (<span id="cosOut">${cosNum(angle)}</span>, <span id="senOut">${sinNum(angle)}</span>)</div>
+              <div style="font-weight:900">
+                θ = <span id="degOut">${showHudAngle ? angle : '?'}</span>°
+                | rad ≈ <span id="radOut">${(toRad(angle)).toFixed(3)}</span>
+                | (cosθ, senθ) ≈ (<span id="cosOut">${cosNum(angle)}</span>, <span id="senOut">${sinNum(angle)}</span>)
+              </div>
             </div>
             <input id="slider" type="range" min="0" max="360" step="1" value="${angle}">
             <div class="row" style="margin-top:8px">
@@ -392,7 +409,8 @@
       `;
 
       const updateHUD = () => {
-        document.getElementById('degOut').textContent = angle;
+        const show = (phase===99) || isAngleRevealed(angle);
+        document.getElementById('degOut').textContent = show ? angle : '?';
         document.getElementById('radOut').textContent = toRad(angle).toFixed(3);
         document.getElementById('cosOut').textContent = cosNum(angle);
         document.getElementById('senOut').textContent = sinNum(angle);
@@ -402,11 +420,19 @@
         angle = clamp(parseInt(e.target.value,10), 0, 360);
         if (target!=null) setMessage(proximityText(angle, target));
         renderWarningsUI(angle);
-        document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target);
+        const show = (phase===99) || isAngleRevealed(angle);
+        document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target, show);
         updateHUD();
       });
 
-      document.getElementById('btnReset').addEventListener('click', () => { angle = 0; document.getElementById('slider').value = 0; renderWarningsUI(angle); document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target); updateHUD(); });
+      document.getElementById('btnReset').addEventListener('click', () => {
+        angle = 0;
+        document.getElementById('slider').value = 0;
+        renderWarningsUI(angle);
+        const show = (phase===99) || isAngleRevealed(angle);
+        document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target, show);
+        updateHUD();
+      });
 
       document.getElementById('btnToggleLivre').addEventListener('click', () => {
         if (phase===99) { phase = (revealed.length?3:1); setMessage('De volta à jornada.'); }
@@ -421,6 +447,11 @@
             if (!revealed.includes(target)) revealed.push(target);
             setMessage(`✨ Excelente! Revelamos ${target}° (rad: ${RAD(target)}, coord: ${COORD(target)}).`);
             const next = idx + 1;
+
+            // após revelar, atualiza HUD/badge imediatamente
+            const show = true;
+            document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target, show);
+            const degOut = document.getElementById('degOut'); if (degOut) degOut.textContent = angle;
 
             if (phase===1 && next >= seqNotaveis.length) {
               setTimeout(() => { setMessage("Maravilha! Você restaurou os ângulos notáveis. Agora cada ângulo tem um irmão do outro lado do círculo. Vamos procurá-los!"); phase = 15; idx = 0; angle = 0; buildCutsceneIrmaos(); }, 700);
@@ -443,7 +474,8 @@
           document.getElementById('slider').value = angle;
           if (target!=null) setMessage(proximityText(angle, target));
           renderWarningsUI(angle);
-          document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target);
+          const show = (phase===99) || isAngleRevealed(angle);
+          document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target, show);
           updateHUD();
           ev.preventDefault();
         }

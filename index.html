@@ -1,285 +1,483 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>RPG Trigonométrico – Jornada Guiada</title>
-<style>
-  body {
-    margin: 0;
-    font-family: 'Poppins', sans-serif;
-    color: #fff;
-    background: radial-gradient(circle at top, #0f0c29, #302b63, #24243e);
-    overflow-x: hidden;
-  }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RPG Trigonométrico — Jornada Guiada</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+      color: #eef2ff;
+      background: linear-gradient(180deg,#0b0e2a 0%, #101348 50%, #5b1b6d 100%);
+      line-height: 1.5;
+    }
+    .page { min-height: 100vh; padding: 24px; position: relative; overflow: hidden; }
+    .wrap { max-width: 1040px; margin: 0 auto; position: relative; z-index: 1; }
 
-  h1, h2, h3, p, span, div {
-    color: #fff;
-    font-weight: 600;
-  }
+    .stars { position: absolute; inset: 0; z-index: 0; opacity: .35; pointer-events: none; }
 
-  button {
-    background: linear-gradient(90deg, #a21caf, #f472b6);
-    border: none;
-    color: white;
-    font-weight: bold;
-    padding: 10px 20px;
-    border-radius: 10px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
+    .card {
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.25);
+      padding: 20px;
+    }
+    .title {
+      font-weight: 800;
+      font-size: 18px;
+      margin: 0 0 12px;
+      color: #fff;
+      text-shadow: 0 1px 3px rgba(255,255,255,.6);
+    }
 
-  button:hover {
-    background: linear-gradient(90deg, #be185d, #ec4899);
-  }
+    .dialog {
+      display: flex; gap: 12px; align-items: flex-start;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: 0 6px 16px rgba(0,0,0,.25);
+      margin-bottom: 10px;
+    }
+    .avatar {
+      width: 48px; height: 48px; border-radius: 999px;
+      background: #e879f9; display: grid; place-items: center;
+      box-shadow: inset 0 0 12px rgba(0,0,0,.25);
+      font-size: 22px;
+    }
+    .dialog p {
+      margin: 0;
+      white-space: pre-line;
+      color: #f8fafc;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0,0,0,.8);
+      letter-spacing: .2px;
+    }
 
-  .container {
-    max-width: 900px;
-    margin: 40px auto;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 20px;
-    padding: 30px;
-    box-shadow: 0 0 20px rgba(255, 255, 255, 0.15);
-  }
+    .warning {
+      margin-top: 8px;
+      background: rgba(220,38,38,.3);
+      color: #ffe4e6;
+      font-weight: 800;
+      border: 1px solid rgba(248,113,113,.7);
+      border-radius: 12px;
+      padding: 10px 12px;
+      box-shadow: 0 1px 2px rgba(0,0,0,.8);
+      font-size: 14px;
+    }
 
-  .dialogo {
-    display: flex;
-    align-items: flex-start;
-    gap: 10px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    padding: 15px;
-    margin-bottom: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
+    .objective { margin-top: 8px; opacity: .95; font-size: 14px; font-weight: 700; text-shadow: 0 1px 2px rgba(0,0,0,.8); }
 
-  .dialogo span {
-    font-size: 2em;
-  }
+    .grid { display: grid; gap: 24px; margin-top: 10px; }
+    @media (min-width: 900px) { .grid { grid-template-columns: 1fr 320px; } }
 
-  input[type="range"] {
-    width: 100%;
-    accent-color: #f472b6;
-  }
+    .panel {
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: 12px;
+      padding: 12px;
+      font-weight: 600;
+      text-shadow: 0 1px 2px rgba(0,0,0,.8);
+    }
+    .panel .muted { opacity: .9; margin-bottom: 6px; }
 
-  svg text {
-    font-weight: bold;
-    fill: #fff;
-    text-shadow: 1px 1px 4px #000;
-  }
+    .svg-wrap { display: flex; align-items: center; justify-content: center; }
+    .angle-label { fill: #fff; font-weight: 800; }
 
-  .warn {
-    background: rgba(255, 0, 0, 0.2);
-    border-left: 4px solid red;
-    padding: 10px;
-    border-radius: 10px;
-    margin-top: 10px;
-  }
+    input[type="range"] { width: 100%; accent-color: #f472b6; }
+    .btn {
+      border: none; cursor: pointer; padding: 10px 14px; border-radius: 10px;
+      color: #fff; font-weight: 800;
+      background: #c026d3;
+      box-shadow: 0 10px 24px rgba(192,38,211,.35);
+      transition: transform .06s ease, box-shadow .2s;
+    }
+    .btn:hover { box-shadow: 0 14px 28px rgba(251,113,133,.55); }
+    .btn:active { transform: translateY(1px); }
+    .btn.slate { background: #475569; box-shadow: 0 10px 24px rgba(71,85,105,.4); }
 
-  .star-bg {
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(circle at top, #1a103d, #0a0225);
-    overflow: hidden;
-  }
-
-  .star {
-    position: absolute;
-    background: white;
-    border-radius: 50%;
-    opacity: 0.8;
-  }
-</style>
+    .center { text-align: center; font-weight: 800; font-size: 20px; margin-top: 10px;
+      text-shadow: 0 1px 3px rgba(255,255,255,.6); }
+  </style>
 </head>
 <body>
-<div class="star-bg" id="stars"></div>
-<div class="container">
-  <h2 id="titulo">RPG Trigonométrico — Jornada Guiada</h2>
-  <div class="dialogo">
-    <span>🪐</span>
-    <p id="mensagem"></p>
+  <div class="page">
+    <svg class="stars"></svg>
+
+    <div class="wrap">
+      <div class="card">
+        <h2 id="title" class="title">Prólogo — Cosmos</h2>
+
+        <div id="dialog" class="dialog">
+          <div class="avatar">🪐</div>
+          <p id="message"></p>
+        </div>
+        <div id="warnings"></div>
+        <div id="objective" class="objective"></div>
+
+        <div id="content"></div>
+      </div>
+    </div>
   </div>
 
-  <div id="warn" class="warn" style="display:none;"></div>
+  <script>
+    // ==================== Utils ====================
+    const toRad = (d) => (d * Math.PI) / 180;
+    const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
+    const within = (a,b,tol=4) => Math.abs(a-b) <= tol;
 
-  <div id="conteudo"></div>
+    const RAD = (deg) => ({
+      0:"0", 30:"π/6", 45:"π/4", 60:"π/3", 90:"π/2",
+      120:"2π/3", 135:"3π/4", 150:"5π/6", 180:"π",
+      210:"7π/6", 225:"5π/4", 240:"4π/3", 270:"3π/2",
+    }[deg] || "?");
 
-  <div style="text-align:right;">
-    <button id="botao">Avançar</button>
-  </div>
-</div>
+    const COORD = (deg) => {
+      const m = {
+        0:["1","0"], 30:["√3/2","1/2"], 45:["√2/2","√2/2"], 60:["1/2","√3/2"],
+        90:["0","1"], 120:["-1/2","√3/2"], 135:["-√2/2","√2/2"], 150:["-√3/2","1/2"],
+        180:["-1","0"], 210:["-√3/2","-1/2"], 225:["-√2/2","-√2/2"], 240:["-1/2","-√3/2"],
+        270:["0","-1"]
+      };
+      const p = m[deg];
+      return p ? `(${p[0]}, ${p[1]})` : "(cosθ, senθ)";
+    };
 
-<script>
-const mensagem = document.getElementById("mensagem");
-const conteudo = document.getElementById("conteudo");
-const botao = document.getElementById("botao");
-const warn = document.getElementById("warn");
-const titulo = document.getElementById("titulo");
+    // ==================== Estado ====================
+    // 0=intro, 1=notáveis, 15=cutscene irmãos, 2=irmãos, 3=radianos, 4=coordenadas, 5=final
+    let phase = 0;
+    let angle = 0;
+    let introStep = 0;
+    let idx = 0;
+    const revealed = [];
 
-const fases = ["intro", "angulos", "irmaos", "radianos", "coords"];
-let faseAtual = 0;
-let indice = 0;
-let angulo = 0;
-let descobertos = [];
+    const seqNotaveis = [30,45,60,90];
+    const siblingsMap = {30:150, 45:135, 60:120, 90:270};
+    const seqIrmaos = [30,45,60,90];
+    const tolerance = 4;
 
-const seqNotaveis = [30, 45, 60, 90];
-const irmaos = { 30:150, 45:135, 60:120, 90:270 };
+    const currentTarget = () =>
+      phase === 1 ? (seqNotaveis[idx] ?? null)
+      : phase === 2 ? (siblingsMap[seqIrmaos[idx]] ?? null)
+      : null;
 
-function setTexto(txt) { mensagem.innerHTML = txt; }
+    const circDiff = (a,b) => {
+      const d = Math.abs(a-b) % 360; return d>180 ? 360-d : d;
+    };
 
-function estrelas() {
-  const s = document.getElementById("stars");
-  for (let i=0; i<100; i++) {
-    const star = document.createElement("div");
-    star.className = "star";
-    star.style.width = star.style.height = Math.random()*2+"px";
-    star.style.top = Math.random()*100+"%";
-    star.style.left = Math.random()*100+"%";
-    s.appendChild(star);
-  }
-}
-estrelas();
+    const proximityText = (cur, target) => {
+      const d = circDiff(cur, target);
+      if (d > 90) return "Estamos muito longe. Procure outra região…";
+      if (d > 45) return "Longe ainda, continue girando…";
+      if (d > 20) return "Aproximando! Siga nesse sentido…";
+      if (d > 10) return "Quase entrando na órbita!";
+      if (d > 5)  return "Quase lá! Ajuste fino…";
+      return "Isso! Você está praticamente em cima do ponto.";
+    };
 
-function toRad(d) { return (d*Math.PI)/180; }
+    const regionWarnings = (a) => {
+      const parts = [];
+      if (a > 90 && a < 270) parts.push("⚠️ Cosseno negativo (lado esquerdo do eixo x)");
+      if (a > 180) parts.push("⚠️ Seno negativo (abaixo do eixo x)");
+      return parts;
+    };
 
-function renderCirculo() {
-  conteudo.innerHTML = "";
-  const svg = document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.setAttribute("width","360");
-  svg.setAttribute("height","360");
-  const cx=180, cy=180, R=130;
-  
-  const circle = document.createElementNS("http://www.w3.org/2000/svg","circle");
-  circle.setAttribute("cx",cx); circle.setAttribute("cy",cy);
-  circle.setAttribute("r",R);
-  circle.setAttribute("stroke","#fff");
-  circle.setAttribute("fill","none");
-  svg.appendChild(circle);
+    // ==================== Textos ====================
+    const introLines = [
+`Oi! Eu sou o Cosmos, um pequeno guardião de órbita. 🌌
+Ontem, uma tempestade de dados rasgou o céu e... POOF! 💥 o nosso Círculo Trigonométrico se despedaçou!`,
+`Esse círculo é muito importante! Ele é como um mapa cósmico onde cada ponto conta a história de um ângulo. ⭕`,
+`Você já conhece os ângulos, né? Pois bem, aqui no meu mundo, a gente também fala uma outra língua: a dos radianos! Eles são como uma tradução mágica dos ângulos — outra forma de medir o mesmo giro, o mesmo caminho pelo círculo.`,
+`E tem mais! Cada pontinho desse círculo guarda uma coordenada especial, formada por dois números: o cosseno e o seno. Juntos, eles dizem exatamente onde o ângulo mora dentro do círculo.`,
+`Ah, e o mais incrível: o nosso círculo tem raio igual a 1. ✨
+Isso faz dele um círculo perfeito — um lugar onde cada posição já mostra o valor exato das coordenadas, sem precisar de nenhuma conta complicada!`,
+`Então... que tal me ajudar a reconstruir o Círculo Trigonométrico e devolver a harmonia ao cosmos? 🚀`
+    ];
 
-  descobertos.forEach((deg)=>{
-    const r=toRad(deg);
-    const x=cx+R*Math.cos(r);
-    const y=cy-R*Math.sin(r);
-    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
-    c.setAttribute("cx",x);
-    c.setAttribute("cy",y);
-    c.setAttribute("r",8);
-    c.setAttribute("fill","#34d399");
-    svg.appendChild(c);
-    const t=document.createElementNS("http://www.w3.org/2000/svg","text");
-    t.setAttribute("x",x+10);
-    t.setAttribute("y",y-8);
-    t.textContent=deg+"°";
-    svg.appendChild(t);
-  });
+    const explicacaoRadianos =
+`Como eu tinha dito para você, aqui no nosso universo, os ângulos também têm outro nome? Nós chamamos eles de radianos!
+Um radiano é uma forma de medir ângulos usando o próprio raio do círculo.
+Imagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos 1 radiano.
+E sabe o que é ainda mais incrível? ✨
+π radianos (pi radianos) equivalem exatamente a 180°!
+Isso quer dizer que meio círculo — de 0° até 180° — é igual a π radianos.`;
 
-  const linha=document.createElementNS("http://www.w3.org/2000/svg","line");
-  const xr=cx+R*Math.cos(toRad(angulo));
-  const yr=cy-R*Math.sin(toRad(angulo));
-  linha.setAttribute("x1",cx); linha.setAttribute("y1",cy);
-  linha.setAttribute("x2",xr); linha.setAttribute("y2",yr);
-  linha.setAttribute("stroke","#f472b6");
-  svg.appendChild(linha);
+    const explicacaoCoordenadas =
+`Cada ponto do nosso círculo tem uma coordenada especial — dois números mágicos: o cosseno (cos) e o seno (sen).
+O cosseno representa o quanto o ponto anda no eixo x (para os lados), e o seno mostra o quanto ele sobe ou desce no eixo y.
+Como o raio do círculo é 1, esses valores sempre ficam entre -1 e 1.
+Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
 
-  conteudo.appendChild(svg);
+    // ==================== DOM ====================
+    const $title = document.getElementById('title');
+    const $message = document.getElementById('message');
+    const $warnings = document.getElementById('warnings');
+    const $objective = document.getElementById('objective');
+    const $content = document.getElementById('content');
+    const setMessage = (t) => $message.textContent = t;
 
-  const input=document.createElement("input");
-  input.type="range"; input.min=0; input.max=360;
-  input.value=angulo;
-  input.oninput=e=>{
-    angulo=parseInt(e.target.value);
-    verificar();
-    renderCirculo();
-  };
-  conteudo.appendChild(input);
-
-  const btn=document.createElement("button");
-  btn.textContent="Confirmar posição";
-  btn.onclick=confirmar;
-  conteudo.appendChild(btn);
-}
-
-function verificar(){
-  const target = faseAtual===1 ? seqNotaveis[indice] : irmaos[seqNotaveis[indice]];
-  const dif = Math.abs(angulo-target);
-  if(dif<5) setTexto("✨ Quase lá! Ajuste fino...");
-  else if(dif<15) setTexto("Quase entrando na órbita!");
-  else if(dif<45) setTexto("Longe ainda, continue girando...");
-  else setTexto("Estamos longe... gire mais.");
-
-  warn.style.display="none";
-  if(angulo>90 && angulo<270) warn.style.display="block", warn.innerHTML="⚠️ Cosseno negativo (lado esquerdo)";
-  if(angulo>180 && angulo<360) warn.style.display="block", warn.innerHTML+="<br>⚠️ Seno negativo (abaixo do eixo x)";
-}
-
-function confirmar(){
-  const alvo = faseAtual===1 ? seqNotaveis[indice] : irmaos[seqNotaveis[indice]];
-  if(Math.abs(angulo-alvo)<=5){
-    if(!descobertos.includes(alvo)) descobertos.push(alvo);
-    setTexto(`Excelente! Você encontrou ${alvo}°!`);
-    indice++;
-    if(faseAtual===1 && indice>=seqNotaveis.length){
-      setTimeout(()=>{
-        faseAtual=2; indice=0;
-        setTexto("Agora cada ângulo tem um irmão! Vamos encontrá-los!");
-        renderCirculo();
-      },800);
-    } else if(faseAtual===2 && indice>=seqNotaveis.length){
-      faseAtual=3;
-      mostrarRadianos();
+    // Atualiza os avisos em tempo real
+    function renderWarningsUI(a) {
+      const warns = (phase===1||phase===2) ? regionWarnings(a) : [];
+      $warnings.innerHTML = warns.length
+        ? `<div class="warning">${warns.join(" • ")}</div>`
+        : "";
     }
-  } else {
-    setTexto("Ainda não. Tente ajustar mais!");
-  }
-}
 
-function mostrarRadianos(){
-  titulo.textContent="Capítulo 3 — A tradução em radianos";
-  conteudo.innerHTML="";
-  setTexto("<b>Como eu tinha dito para você...</b><br>Os ângulos também têm outro nome: chamamos eles de <b>radianos</b>!<br>Um radiano é uma forma de medir ângulos usando o próprio raio do círculo.<br>Imagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos <b>1 radiano</b>.<br>✨ π radianos equivalem exatamente a 180°!");
-  
-  const svg=document.createElementNS("http://www.w3.org/2000/svg","svg");
-  svg.setAttribute("width","360");
-  svg.setAttribute("height","360");
-  const cx=180,cy=180,R=130;
-  const angulos=[30,45,60,90,120,135,150,180,210,225,240,270];
-  angulos.forEach((deg)=>{
-    const r=toRad(deg);
-    const x=cx+R*Math.cos(r);
-    const y=cy-R*Math.sin(r);
-    const c=document.createElementNS("http://www.w3.org/2000/svg","circle");
-    c.setAttribute("cx",x); c.setAttribute("cy",y);
-    c.setAttribute("r",6); c.setAttribute("fill","#34d399");
-    svg.appendChild(c);
-    const t=document.createElementNS("http://www.w3.org/2000/svg","text");
-    t.setAttribute("x",x+10); t.setAttribute("y",y-6);
-    t.textContent=`${deg}° = ${(deg/180).toFixed(2)}π rad`;
-    svg.appendChild(t);
-  });
-  conteudo.appendChild(svg);
-  const btn=document.createElement("button");
-  btn.textContent="Continuar para coordenadas";
-  btn.onclick=mostrarCoords;
-  conteudo.appendChild(btn);
-}
+    // ==================== UI ====================
+    function buildIntro() {
+      $title.textContent = "Prólogo — Cosmos";
+      setMessage(introLines[introStep]);
+      $warnings.innerHTML = "";
+      $objective.textContent = "";
 
-function mostrarCoords(){
-  titulo.textContent="Capítulo 4 — As coordenadas do cosmos";
-  setTexto("<b>Cada ponto do nosso círculo tem uma coordenada especial</b> — o <b>cosseno</b> (x) e o <b>seno</b> (y).<br>O cosseno mostra quanto anda no eixo x e o seno quanto sobe no eixo y.<br>Como o raio é 1, os valores ficam entre -1 e 1.<br>Assim, cada ângulo revela onde vive no círculo!");
-  conteudo.innerHTML="<p>🌟 <b>Círculo restaurado!</b> Você dominou ângulos, irmãos, radianos e coordenadas. Parabéns!</p>";
-  botao.style.display="none";
-}
+      $content.innerHTML = `
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <button class="btn slate" id="btnBack" ${introStep===0?"disabled":""}>Voltar</button>
+          <button class="btn" id="btnNext">${introStep<introLines.length-1 ? "Avançar" : "Começar reconstrução"}</button>
+        </div>
+      `;
 
-botao.onclick=()=>{
-  if(faseAtual===0){
-    faseAtual=1;
-    titulo.textContent="Capítulo 1 — Ângulos notáveis";
-    setTexto("Vamos reconstruir o círculo! Gire até o ângulo certo!");
-    renderCirculo();
-  }
-};
-</script>
+      document.getElementById('btnBack')?.addEventListener('click', () => {
+        introStep = Math.max(0, introStep-1);
+        buildIntro();
+      });
+      document.getElementById('btnNext').addEventListener('click', () => {
+        if (introStep < introLines.length-1) {
+          introStep++;
+          buildIntro();
+        } else {
+          phase = 1;
+          setMessage("Vamos reconstruir o círculo. Gire a seta até o primeiro ponto — eu aviso quando estiver perto!");
+          buildPhaseCircle();
+        }
+      });
+    }
+
+    function circleSVG(angleDeg, revealedAngles) {
+      const R = 140, cx = 180, cy = 180;
+      const rad = toRad(angleDeg);
+      const x = cx + R*Math.cos(rad);
+      const y = cy - R*Math.sin(rad);
+
+      const revealedDots = revealedAngles.map(deg => {
+        const r = toRad(deg);
+        const px = cx + R*Math.cos(r);
+        const py = cy - R*Math.sin(r);
+
+        // desloca o rótulo para fora, radialmente
+        const labelOffset = 18;
+        const lx = px + Math.cos(r) * labelOffset;
+        const ly = py - Math.sin(r) * labelOffset;
+
+        return `
+          <g>
+            <circle cx="${px}" cy="${py}" r="8" fill="#34d399" stroke="#fff"/>
+            <text x="${lx}" y="${ly}" class="angle-label" font-size="12"
+                  text-anchor="middle" dominant-baseline="middle"
+                  style="paint-order: stroke; stroke: rgba(0,0,0,.6); stroke-width: 3;">
+              ${deg}°
+            </text>
+          </g>`;
+      }).join("");
+
+      return `
+      <svg width="360" height="360">
+        <defs>
+          <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#a78bfa" stop-opacity="0.6"/>
+            <stop offset="100%" stop-color="#a78bfa" stop-opacity="0.05"/>
+          </radialGradient>
+        </defs>
+        <circle cx="${cx}" cy="${cy}" r="${R+14}" fill="url(#glow)"/>
+        <line x1="${cx-R-18}" x2="${cx+R+18}" y1="${cy}" y2="${cy}" stroke="#fff" opacity=".25"/>
+        <line x1="${cx}" x2="${cx}" y1="${cy-R-18}" y2="${cy+R+18}" stroke="#fff" opacity=".25"/>
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="#fff" opacity=".7" stroke-width="2"/>
+
+        ${revealedDots}
+
+        <path d="M ${cx+36} ${cy} A 36 36 0 ${angleDeg>180?1:0} 0 ${cx+36*Math.cos(rad)} ${cy-36*Math.sin(rad)}"
+              fill="none" stroke="#f9a8d4" stroke-width="3"/>
+
+        <line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#f472b6"/>
+        <circle cx="${x}" cy="${y}" r="7" fill="#f472b6" stroke="#fff"/>
+      </svg>`;
+    }
+
+    function buildPhaseCircle() {
+      const phaseTitle = (phase===1) ? "Capítulo 1 — Criando o círculo"
+                        : (phase===2) ? "Capítulo 2 — Irmãos do outro lado"
+                        : "";
+      $title.textContent = phaseTitle;
+
+      const target = currentTarget();
+      renderWarningsUI(angle); // avisa já no início
+
+      if (target != null) {
+        $objective.textContent = (phase===1)
+          ? `Objetivo atual: alcançar ${target}°`
+          : `Objetivo atual: encontrar o irmão de ${seqIrmaos[idx]}°`;
+      } else {
+        $objective.textContent = "";
+      }
+
+      $content.innerHTML = `
+        <div class="grid">
+          <div>
+            <div class="svg-wrap" id="svgWrap">${circleSVG(angle, revealed)}</div>
+            <input id="slider" type="range" min="0" max="360" step="1" value="${angle}">
+            <div style="display:flex;justify-content:flex-end;margin-top:8px">
+              <button class="btn" id="confirmBtn">Confirmar posição</button>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="muted">Objetivo atual</div>
+            <div style="font-weight:800">
+              ${target!=null ? (phase===1 ? `alcançar ${target}°` : `encontrar o irmão de ${seqIrmaos[idx]}°`) : "—"}
+            </div>
+            <div class="muted" style="margin-top:10px">Exemplos revelados</div>
+            ${revealed.length
+              ? `<ul style="margin:0;padding-left:18px">${revealed.slice().sort((a,b)=>a-b).map(d=>(
+                `<li> <b>${d}°</b> — rad: <b>${RAD(d)}</b>, coord: <b>${COORD(d)}</b></li>`
+              )).join("")}</ul>`
+              : `<div class="muted">—</div>`
+            }
+          </div>
+        </div>
+      `;
+
+      document.getElementById('slider').addEventListener('input', (e) => {
+        angle = clamp(parseInt(e.target.value,10), 0, 360);
+        if (target!=null) setMessage(proximityText(angle, target));
+        renderWarningsUI(angle); // <<< atualiza em tempo real
+        document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed);
+      });
+
+      document.getElementById('confirmBtn').addEventListener('click', () => {
+        if (target==null) return;
+        if (within(angle, target, tolerance)) {
+          if (!revealed.includes(target)) revealed.push(target);
+          setMessage(`✨ Excelente! Revelamos ${target}° (rad: ${RAD(target)}, coord: ${COORD(target)}).`);
+          const next = idx + 1;
+
+          if (phase===1 && next >= seqNotaveis.length) {
+            setTimeout(() => {
+              setMessage("Maravilha! Você restaurou os ângulos notáveis. Agora cada ângulo tem um irmão do outro lado do círculo. Vamos procurá-los!");
+              phase = 15; idx = 0; angle = 0;
+              buildCutsceneIrmaos();
+            }, 800);
+          } else if (phase===2 && next >= seqIrmaos.length) {
+            setTimeout(() => {
+              setMessage(explicacaoRadianos);
+              phase = 3; idx = 0; angle = 0;
+              buildRadianos();
+            }, 800);
+          } else {
+            idx = next;
+            buildPhaseCircle();
+          }
+        } else {
+          setMessage("Ainda não. Ajuste com cuidado até sentir que está alinhado.");
+        }
+      });
+    }
+
+    function buildCutsceneIrmaos() {
+      $title.textContent = "Capítulo 2 — Irmãos do outro lado";
+      $warnings.innerHTML = "";
+      $objective.textContent = "";
+      $content.innerHTML = `
+        <div style="display:flex;justify-content:flex-end">
+          <button class="btn" id="btnIrmaos">Procurar irmãos</button>
+        </div>
+      `;
+      document.getElementById('btnIrmaos').addEventListener('click', () => {
+        phase = 2; idx = 0; angle = 0;
+        setMessage("Comecemos pelo irmão de 30°. Ajuste a seta até ele e confirme!");
+        buildPhaseCircle();
+      });
+    }
+
+    function buildRadianos() {
+      $title.textContent = "Capítulo 3 — A tradução em radianos";
+      $warnings.innerHTML = "";
+      $objective.textContent = "";
+      $content.innerHTML = `
+        <div class="panel">
+          <div class="muted">Traduções em radianos</div>
+          ${revealed.length
+            ? `<ul style="margin:0;padding-left:18px">${revealed.slice().sort((a,b)=>a-b)
+                .map(d => `<li>• <b>${d}°</b> → <b>${RAD(d)}</b></li>`).join("")}</ul>`
+            : `<div class="muted">—</div>`
+          }
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px">
+          <button class="btn" id="btnCoord">Continuar para coordenadas</button>
+        </div>
+      `;
+      document.getElementById('btnCoord').addEventListener('click', () => {
+        setMessage(explicacaoCoordenadas);
+        phase = 4; buildCoordenadas();
+      });
+    }
+
+    function buildCoordenadas() {
+      $title.textContent = "Capítulo 4 — As coordenadas do cosmos";
+      $warnings.innerHTML = "";
+      $objective.textContent = "";
+      $content.innerHTML = `
+        <p class="panel" style="margin:0 0 10px 0; white-space:pre-line;">${explicacaoCoordenadas}</p>
+        <div class="panel">
+          ${revealed.slice().sort((a,b)=>a-b).map(d => `• ${d}° → <b>${COORD(d)}</b>`).join("<br/>")}
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-top:12px">
+          <button class="btn" id="btnFinal">Finalizar jornada</button>
+        </div>
+      `;
+      document.getElementById('btnFinal').addEventListener('click', () => {
+        phase = 5;
+        setMessage("🌟 Círculo restaurado! Você dominou ângulos notáveis, irmãos, radianos e coordenadas. Parabéns!");
+        buildFinal();
+      });
+    }
+
+    function buildFinal() {
+      $title.textContent = "Epílogo — Harmonia Restaurada";
+      $warnings.innerHTML = "";
+      $objective.textContent = "";
+      $content.innerHTML = `<div class="center">🌟 Círculo restaurado! Você dominou ângulos notáveis, irmãos, radianos e coordenadas. Parabéns!</div>`;
+    }
+
+    // ==================== Estrelas ====================
+    (function drawStars() {
+      const svg = document.querySelector('.stars');
+      const N = 120;
+      const w = svg.clientWidth || window.innerWidth;
+      const h = svg.clientHeight || window.innerHeight;
+      svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+      let dots = '';
+      for (let i=0;i<N;i++){
+        const x = Math.random()*w;
+        const y = Math.random()*h;
+        const r = Math.random()*1.6 + .3;
+        dots += `<circle cx="${x}" cy="${y}" r="${r}" fill="#fff"/>`;
+      }
+      svg.innerHTML = dots;
+      window.addEventListener('resize', drawStars, { once: true });
+    })();
+
+    // ==================== Boot + sanity checks ====================
+    // sanity checks (tipo testes rápidos)
+    console.assert(RAD(180) === "π", "RAD(180) deveria ser π");
+    console.assert(COORD(30) === "(√3/2, 1/2)", "COORD(30) deveria ser (√3/2, 1/2)");
+
+    setMessage(introLines[introStep]);
+    buildIntro();
+  </script>
 </body>
 </html>

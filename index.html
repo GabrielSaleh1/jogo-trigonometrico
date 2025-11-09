@@ -174,7 +174,6 @@
       return parts;
     };
 
-    // ângulo atual já foi revelado?
     function isAngleRevealed(deg) {
       return revealed.some(r => Math.abs(r - deg) <= 0.5);
     }
@@ -191,14 +190,6 @@ Isso faz dele um círculo perfeito — um lugar onde cada posição já mostra o
 `Então... que tal me ajudar a reconstruir o Círculo Trigonométrico e devolver a harmonia ao cosmos? 🚀`
     ];
 
-    const explicacaoRadianos =
-`Como eu tinha dito para você, aqui no nosso universo, os ângulos também têm outro nome? Nós chamamos eles de radianos!
-Um radiano é uma forma de medir ângulos usando o próprio raio do círculo.
-Imagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos 1 radiano.
-E sabe o que é ainda mais incrível? ✨
-π radianos (pi radianos) equivalem exatamente a 180°!
-Isso quer dizer que meio círculo — de 0° até 180° — é igual a π radianos.`;
-
     const explicacaoCoordenadas =
 `Cada ponto do nosso círculo tem uma coordenada especial — dois números mágicos: o cosseno (cos) e o seno (sen).
 O cosseno representa o quanto o ponto anda no eixo x (para os lados), e o seno mostra o quanto ele sobe ou desce no eixo y.
@@ -214,7 +205,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
     const $content = document.getElementById('content');
     const setMessage = (t) => $message.textContent = t;
 
-    // avisos de sinais
     function renderWarningsUI(a) {
       const warns = (phase===1||phase===2||phase===99) ? regionWarnings(a) : [];
       $warnings.innerHTML = warns.length
@@ -230,7 +220,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
       $warnings.innerHTML = "";
       $objective.textContent = "";
 
-      // sem botão de Modo Livre (só no epílogo)
       $content.innerHTML = `
         <div class="row">
           <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -376,7 +365,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
       const stg = proximityStage(angle, target);
       const confirmColor = stg==='perfect' ? 'green' : stg==='near' ? 'orange' : 'slate';
 
-      // exibição de θ
       const showBadge = (phase===99) || isAngleRevealed(angle);
       const showHudAngle = (phase===99) || isAngleRevealed(angle);
 
@@ -445,12 +433,10 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
           if (within(angle, target, tolerance)) {
             if (!revealed.includes(target)) revealed.push(target);
 
-            // mensagem só na fase dos irmãos (fase 2)
             if (phase === 2) {
               setMessage(`✨ Boa! Você encontrou um irmão de ${seqIrmaos[idx]}°: ${target}°.\nContinue até achar todos!`);
             }
 
-            // Atualiza HUD/badge imediatamente
             document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target, true);
             const degOut = document.getElementById('degOut'); if (degOut) degOut.textContent = angle;
 
@@ -467,7 +453,7 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
               if (rem.length === 0) {
                 const next = idx + 1;
                 if (next >= seqIrmaos.length) {
-                  setTimeout(() => { setMessage(explicacaoRadianos); phase = 3; idx = 0; angle = 0; buildRadianos(); }, 700);
+                  setTimeout(() => { setMessage("Excelente! Vamos traduzir esses ângulos para radianos."); phase = 3; idx = 0; angle = 0; buildRadianos(); }, 700);
                 } else {
                   idx = next;
                   setTimeout(() => {
@@ -546,7 +532,12 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
           <button class="btn" id="btnCoord">Continuar para coordenadas</button>
         </div>
       `;
-      document.getElementById('btnCoord').addEventListener('click', () => { setMessage(explicacaoCoordenadas); phase = 4; buildCoordenadas(); });
+      // >>> CORREÇÃO AQUI: não injetar explicação nas mensagens para evitar duplicação
+      document.getElementById('btnCoord').addEventListener('click', () => {
+        phase = 4;
+        setMessage("Agora vamos ver como as coordenadas funcionam.");
+        buildCoordenadas();
+      });
     }
 
     function buildCoordenadas() {
@@ -603,7 +594,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
     console.assert(Math.abs(cosNum(60) - 0.5) < 1e-3, "cos(60°) deveria ser 0.5");
     console.assert(Math.abs(sinNum(30) - 0.5) < 1e-3, "sin(30°) deveria ser 0.5");
 
-    // boot
     setMessage(introLines[introStep]);
     buildIntro();
   </script>

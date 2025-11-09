@@ -104,6 +104,7 @@
       0:"0", 30:"π/6", 45:"π/4", 60:"π/3", 90:"π/2",
       120:"2π/3", 135:"3π/4", 150:"5π/6", 180:"π",
       210:"7π/6", 225:"5π/4", 240:"4π/3", 270:"3π/2",
+      300:"5π/3", 315:"7π/4", 330:"11π/6"
     }[deg] || "?");
 
     const COORD = (deg) => {
@@ -111,7 +112,7 @@
         0:["1","0"], 30:["√3/2","1/2"], 45:["√2/2","√2/2"], 60:["1/2","√3/2"],
         90:["0","1"], 120:["-1/2","√3/2"], 135:["-√2/2","√2/2"], 150:["-√3/2","1/2"],
         180:["-1","0"], 210:["-√3/2","-1/2"], 225:["-√2/2","-√2/2"], 240:["-1/2","-√3/2"],
-        270:["0","-1"]
+        270:["0","-1"], 300:["1/2","-√3/2"], 315:["√2/2","-√2/2"], 330:["√3/2","-1/2"]
       };
       const p = m[deg];
       return p ? `(${p[0]}, ${p[1]})` : "(cosθ, senθ)";
@@ -126,16 +127,22 @@
     let angle = 0;
     let introStep = 0;
     let idx = 0;
-    const revealed = []; // guarda ângulos confirmados pelo jogador (em graus inteiros)
+    const revealed = []; // ângulos confirmados
 
     const seqNotaveis = [30,45,60,90];
-    const siblingsMap = {30:150, 45:135, 60:120, 90:270};
+    // Correspondentes (mesmo ângulo de referência) para cada notável
+    const correspondentsMap = {
+      30: [150, 210, 330],
+      45: [135, 225, 315],
+      60: [120, 240, 300],
+      90: [270]
+    };
     const seqIrmaos = [30,45,60,90];
     const tolerance = 4;
 
     const currentTarget = () =>
       phase === 1 ? (seqNotaveis[idx] ?? null)
-      : phase === 2 ? (siblingsMap[seqIrmaos[idx]] ?? null)
+      : phase === 2 ? (remainingCorrespondents(seqIrmaos[idx])[0] ?? null)
       : null;
 
     const circDiff = (a,b) => {
@@ -145,9 +152,9 @@
     const proximityStage = (cur, target) => {
       if (target==null) return "neutral";
       const d = circDiff(cur, target);
-      if (d <= 5) return "perfect"; // verde
-      if (d <= 12) return "near";   // amarelo
-      return "far";                  // vermelho
+      if (d <= 5) return "perfect";
+      if (d <= 12) return "near";
+      return "far";
     };
 
     const proximityText = (cur, target) => {
@@ -167,26 +174,36 @@
       return parts;
     };
 
-    // Helper: ângulo atual está revelado?
+    // ângulo atual já foi revelado?
     function isAngleRevealed(deg) {
       return revealed.some(r => Math.abs(r - deg) <= 0.5);
     }
 
     // ==================== Textos ====================
     const introLines = [
-`Oi! Eu sou o Cosmos, um pequeno guardião de órbita. 🌌\nOntem, uma tempestade de dados rasgou o céu e... POOF! 💥 o nosso Círculo Trigonométrico se despedaçou!`,
+`Oi! Eu sou o Cosmos, um pequeno guardião de órbita. 🌌
+Ontem, uma tempestade de dados rasgou o céu e... POOF! 💥 o nosso Círculo Trigonométrico se despedaçou!`,
 `Esse círculo é muito importante! Ele é como um mapa cósmico onde cada ponto conta a história de um ângulo. ⭕`,
 `Você já conhece os ângulos, né? Pois bem, aqui no meu mundo, a gente também fala uma outra língua: a dos radianos! Eles são como uma tradução mágica dos ângulos — outra forma de medir o mesmo giro, o mesmo caminho pelo círculo.`,
 `E tem mais! Cada pontinho desse círculo guarda uma coordenada especial, formada por dois números: o cosseno e o seno. Juntos, eles dizem exatamente onde o ângulo mora dentro do círculo.`,
-`Ah, e o mais incrível: o nosso círculo tem raio igual a 1. ✨\nIsso faz dele um círculo perfeito — um lugar onde cada posição já mostra o valor exato das coordenadas, sem precisar de nenhuma conta complicada!`,
+`Ah, e o mais incrível: o nosso círculo tem raio igual a 1. ✨
+Isso faz dele um círculo perfeito — um lugar onde cada posição já mostra o valor exato das coordenadas, sem precisar de nenhuma conta complicada!`,
 `Então... que tal me ajudar a reconstruir o Círculo Trigonométrico e devolver a harmonia ao cosmos? 🚀`
     ];
 
     const explicacaoRadianos =
-`Como eu tinha dito para você, aqui no nosso universo, os ângulos também têm outro nome? Nós chamamos eles de radianos!\nUm radiano é uma forma de medir ângulos usando o próprio raio do círculo.\nImagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos 1 radiano.\nE sabe o que é ainda mais incrível? ✨\nπ radianos (pi radianos) equivalem exatamente a 180°!\nIsso quer dizer que meio círculo — de 0° até 180° — é igual a π radianos.`;
+`Como eu tinha dito para você, aqui no nosso universo, os ângulos também têm outro nome? Nós chamamos eles de radianos!
+Um radiano é uma forma de medir ângulos usando o próprio raio do círculo.
+Imagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos 1 radiano.
+E sabe o que é ainda mais incrível? ✨
+π radianos (pi radianos) equivalem exatamente a 180°!
+Isso quer dizer que meio círculo — de 0° até 180° — é igual a π radianos.`;
 
     const explicacaoCoordenadas =
-`Cada ponto do nosso círculo tem uma coordenada especial — dois números mágicos: o cosseno (cos) e o seno (sen).\nO cosseno representa o quanto o ponto anda no eixo x (para os lados), e o seno mostra o quanto ele sobe ou desce no eixo y.\nComo o raio do círculo é 1, esses valores sempre ficam entre -1 e 1.\nAssim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
+`Cada ponto do nosso círculo tem uma coordenada especial — dois números mágicos: o cosseno (cos) e o seno (sen).
+O cosseno representa o quanto o ponto anda no eixo x (para os lados), e o seno mostra o quanto ele sobe ou desce no eixo y.
+Como o raio do círculo é 1, esses valores sempre ficam entre -1 e 1.
+Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
 
     // ==================== DOM helpers ====================
     const $title = document.getElementById('title');
@@ -197,6 +214,7 @@
     const $content = document.getElementById('content');
     const setMessage = (t) => $message.textContent = t;
 
+    // avisos de sinais
     function renderWarningsUI(a) {
       const warns = (phase===1||phase===2||phase===99) ? regionWarnings(a) : [];
       $warnings.innerHTML = warns.length
@@ -212,7 +230,7 @@
       $warnings.innerHTML = "";
       $objective.textContent = "";
 
-      // Removido o botão de Modo Livre aqui (só aparece no final)
+      // sem botão de Modo Livre (só no epílogo)
       $content.innerHTML = `
         <div class="row">
           <div style="display:flex;gap:12px;flex-wrap:wrap">
@@ -248,7 +266,7 @@
       const quadFill = (q) => ({1:'rgba(16,185,129,.12)',2:'rgba(244,114,182,.12)',3:'rgba(34,197,94,.10)',4:'rgba(250,204,21,.10)'}[q]);
       const wedge = (start) => {
         const rs = toRad(start), re = toRad(start+90);
-        const large = 0; const sweep = 1;
+        const large = 0, sweep = 1;
         const sx = cx + R*Math.cos(rs), sy = cy - R*Math.sin(rs);
         const ex = cx + R*Math.cos(re), ey = cy - R*Math.sin(re);
         return `M ${cx} ${cy} L ${sx} ${sy} A ${R} ${R} 0 ${large} ${sweep} ${ex} ${ey} Z`;
@@ -270,18 +288,18 @@
           </g>`;
       }).join("");
 
+      // projeções
       const px = x, py = y;
       const projLines = `
         <line x1="${px}" y1="${py}" x2="${px}" y2="${cy}" stroke="#f97316" stroke-dasharray="6 4"/>  
         <line x1="${px}" y1="${cy}" x2="${cx}" y2="${cy}" stroke="#60a5fa" stroke-dasharray="6 4"/>  
       `;
 
+      // labels com clamp para não cortar
       const onRight = Math.cos(rad) >= 0;
       const sinAnchor = onRight ? 'end' : 'start';
-      const sinXRaw = onRight ? (px - 12) : (px + 12);
-      const sinX = clampX(sinXRaw);
+      const sinX = clampX(onRight ? (px - 12) : (px + 12));
       const sinY = clampY((py + cy) / 2 - 6);
-
       const cosX = clampX((px + cx) / 2);
       const cosY = clampY(cy + 16);
 
@@ -344,9 +362,13 @@
       renderWarningsUI(angle);
 
       if (target != null) {
+        const base = (phase===2) ? seqIrmaos[idx] : null;
+        const rem = (phase===2) ? remainingCorrespondents(base).length : null;
         $objective.textContent = (phase===1)
           ? `Objetivo atual: alcançar ${target}°`
-          : `Objetivo atual: encontrar o irmão de ${seqIrmaos[idx]}°`;
+          : (phase===2)
+            ? `Objetivo atual: irmãos correspondentes de ${base}° — faltam ${rem}`
+            : '';
       } else {
         $objective.textContent = (phase===99) ? 'Sem objetivos: observe quadrantes, sinais e projeções.' : '';
       }
@@ -354,6 +376,7 @@
       const stg = proximityStage(angle, target);
       const confirmColor = stg==='perfect' ? 'green' : stg==='near' ? 'orange' : 'slate';
 
+      // exibição de θ
       const showBadge = (phase===99) || isAngleRevealed(angle);
       const showHudAngle = (phase===99) || isAngleRevealed(angle);
 
@@ -380,7 +403,7 @@
 
           <div class="panel">
             <div class="muted">Objetivo atual</div>
-            <div style="font-weight:800">${target!=null ? (phase===1 ? `alcançar ${target}°` : `encontrar o irmão de ${seqIrmaos[idx]}°`) : (phase===99? 'Explorar livremente' : '—')}</div>
+            <div style="font-weight:800">${target!=null ? (phase===1 ? `alcançar ${target}°` : `irmãos correspondentes de ${seqIrmaos[idx]}°`) : (phase===99? 'Explorar livremente' : '—')}</div>
             <div class="muted" style="margin-top:10px">Exemplos revelados</div>
             ${revealed.length
               ? `<ul style="margin:0;padding-left:18px">${revealed.slice().sort((a,b)=>a-b).map(d=>(`<li> <b>${d}°</b> — rad: <b>${RAD(d)}</b>, coord: <b>${COORD(d)}</b></li>`)).join("")}</ul>`
@@ -421,19 +444,40 @@
           if (target==null) return;
           if (within(angle, target, tolerance)) {
             if (!revealed.includes(target)) revealed.push(target);
-            setMessage(`✨ Excelente! Revelamos ${target}° (rad: ${RAD(target)}, coord: ${COORD(target)}).`);
-            const next = idx + 1;
 
-            // após revelar, atualiza HUD/badge imediatamente
+            // mensagem só na fase dos irmãos (fase 2)
+            if (phase === 2) {
+              setMessage(`✨ Boa! Você encontrou um irmão de ${seqIrmaos[idx]}°: ${target}°.\nContinue até achar todos!`);
+            }
+
+            // Atualiza HUD/badge imediatamente
             document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target, true);
             const degOut = document.getElementById('degOut'); if (degOut) degOut.textContent = angle;
 
-            if (phase===1 && next >= seqNotaveis.length) {
-              setTimeout(() => { setMessage("Maravilha! Você restaurou os ângulos notáveis. Agora cada ângulo tem um irmão do outro lado do círculo. Vamos procurá-los!"); phase = 15; idx = 0; angle = 0; buildCutsceneIrmaos(); }, 700);
-            } else if (phase===2 && next >= seqIrmaos.length) {
-              setTimeout(() => { setMessage(explicacaoRadianos); phase = 3; idx = 0; angle = 0; buildRadianos(); }, 700);
-            } else {
-              idx = next; buildPhaseCircle();
+            if (phase===1) {
+              const next = idx + 1;
+              if (next >= seqNotaveis.length) {
+                setTimeout(() => { setMessage("Maravilha! Você restaurou os ângulos notáveis. Agora vamos caçar os irmãos correspondentes desses ângulos nos outros quadrantes!"); phase = 15; idx = 0; angle = 0; buildCutsceneIrmaos(); }, 700);
+              } else {
+                idx = next; buildPhaseCircle();
+              }
+            } else if (phase===2) {
+              const base = seqIrmaos[idx];
+              const rem = remainingCorrespondents(base);
+              if (rem.length === 0) {
+                const next = idx + 1;
+                if (next >= seqIrmaos.length) {
+                  setTimeout(() => { setMessage(explicacaoRadianos); phase = 3; idx = 0; angle = 0; buildRadianos(); }, 700);
+                } else {
+                  idx = next;
+                  setTimeout(() => {
+                    setMessage(`Muito bem! Agora procure os irmãos de ${seqIrmaos[idx]}°.`);
+                    buildPhaseCircle();
+                  }, 600);
+                }
+              } else {
+                buildPhaseCircle();
+              }
             }
           } else {
             setMessage("Ainda não. Observe as projeções e os sinais: ajuste com cuidado até alinhar.");
@@ -458,16 +502,31 @@
     }
 
     function buildCutsceneIrmaos() {
-      $title.firstChild.textContent = "Capítulo 2 — Irmãos do outro lado ";
+      $title.firstChild.textContent = "Capítulo 2 — Irmãos correspondentes ";
       $modePill.textContent = 'Jornada';
       $warnings.innerHTML = "";
       $objective.textContent = "";
       $content.innerHTML = `
+        <div class="panel" style="margin-bottom:12px">
+          Alguns ângulos têm <b>irmãos correspondentes</b>: não ficam no mesmo lugar,
+          mas têm a <b>mesma inclinação de base</b> — o mesmo “jeito” de apontar —
+          mudando só o lado/quadrante. Sua missão agora é encontrar,
+          para cada ângulo notável, <b>todos os seus irmãos</b> nos outros quadrantes.
+        </div>
         <div class="row" style="justify-content:flex-end">
-          <button class="btn" id="btnIrmaos">Procurar irmãos</button>
+          <button class="btn" id="btnIrmaos">Começar a buscar irmãos</button>
         </div>
       `;
-      document.getElementById('btnIrmaos').addEventListener('click', () => { phase = 2; idx = 0; angle = 0; setMessage("Comecemos pelo irmão de 30°. Ajuste a seta até ele e confirme!"); buildPhaseCircle(); });
+      document.getElementById('btnIrmaos').addEventListener('click', () => {
+        phase = 2; idx = 0; angle = 0;
+        setMessage("Vamos começar pelo 30°. Encontre um dos seus irmãos correspondentes e confirme!");
+        buildPhaseCircle();
+      });
+    }
+
+    function remainingCorrespondents(base){
+      const list = correspondentsMap[base] || [];
+      return list.filter(t => !revealed.some(r => Math.abs(r - t) <= 0.5));
     }
 
     function buildRadianos() {
@@ -538,9 +597,13 @@
     console.assert(RAD(90) === "π/2", "RAD(90) deveria ser π/2");
     console.assert(COORD(30) === "(√3/2, 1/2)", "COORD(30) deveria ser (√3/2, 1/2)");
     console.assert(COORD(45) === "(√2/2, √2/2)", "COORD(45) deveria ser (√2/2, √2/2)");
+    console.assert(COORD(300) === "(1/2, -√3/2)", "COORD(300) deveria ser (1/2, -√3/2)");
+    console.assert(COORD(315) === "(√2/2, -√2/2)", "COORD(315) deveria ser (√2/2, -√2/2)");
+    console.assert(COORD(330) === "(√3/2, -1/2)", "COORD(330) deveria ser (√3/2, -1/2)");
     console.assert(Math.abs(cosNum(60) - 0.5) < 1e-3, "cos(60°) deveria ser 0.5");
     console.assert(Math.abs(sinNum(30) - 0.5) < 1e-3, "sin(30°) deveria ser 0.5");
 
+    // boot
     setMessage(introLines[introStep]);
     buildIntro();
   </script>

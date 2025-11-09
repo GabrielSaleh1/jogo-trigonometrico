@@ -516,29 +516,49 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
     }
 
     function buildRadianos() {
-      $title.firstChild.textContent = "Capítulo 3 — A tradução em radianos ";
-      $modePill.textContent = 'Jornada';
-      $warnings.innerHTML = "";
-      $objective.textContent = "";
-      $content.innerHTML = `
-        <div class="panel">
-          <div class="muted">Traduções em radianos</div>
-          ${revealed.length
-            ? `<ul style="margin:0;padding-left:18px">${revealed.slice().sort((a,b)=>a-b).map(d => `<li>• <b>${d}°</b> → <b>${RAD(d)}</b></li>`).join("")}</ul>`
-            : `<div class="muted">—</div>`
-          }
-        </div>
-        <div style="display:flex;justify-content:flex-end;margin-top:12px">
-          <button class="btn" id="btnCoord">Continuar para coordenadas</button>
-        </div>
-      `;
-      // >>> CORREÇÃO AQUI: não injetar explicação nas mensagens para evitar duplicação
-      document.getElementById('btnCoord').addEventListener('click', () => {
-        phase = 4;
-        setMessage("Agora vamos ver como as coordenadas funcionam.");
-        buildCoordenadas();
-      });
-    }
+  $title.firstChild.textContent = "Capítulo 3 — A tradução em radianos ";
+  $modePill.textContent = 'Jornada';
+  $warnings.innerHTML = "";
+  $objective.textContent = "";
+
+  // texto explicativo inserido aqui
+  const explicacaoRadianos = `Como eu tinha dito para você, aqui no nosso universo, os ângulos também têm outro nome! 
+Nós chamamos eles de radianos! 🌙
+Um radiano é uma forma de medir ângulos usando o próprio raio do círculo.
+Imagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos 1 radiano.
+E sabe o que é ainda mais incrível? ✨
+π radianos (pi radianos) equivalem exatamente a 180°!
+Isso quer dizer que meio círculo — de 0° até 180° — é igual a π radianos.`;
+
+  $content.innerHTML = `
+    <p class="panel" style="white-space:pre-line;">${explicacaoRadianos}</p>
+    <div class="panel">
+      <div class="muted">Traduções em radianos</div>
+      ${
+        revealed.length
+          ? `<ul style="margin:0;padding-left:18px">${revealed
+              .slice()
+              .sort((a, b) => a - b)
+              .map(
+                (d) => `<li>• <b>${d}°</b> → <b>${RAD(d)}</b></li>`
+              )
+              .join("")}</ul>`
+          : `<div class="muted">—</div>`
+      }
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <button class="btn" id="btnCoord">Continuar para coordenadas</button>
+    </div>
+  `;
+
+  document
+    .getElementById("btnCoord")
+    .addEventListener("click", () => {
+      phase = 4;
+      setMessage("Agora vamos ver como as coordenadas funcionam.");
+      buildCoordenadas();
+    });
+}
 
     function buildCoordenadas() {
       $title.firstChild.textContent = "Capítulo 4 — As coordenadas do cosmos ";

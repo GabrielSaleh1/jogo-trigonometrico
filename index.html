@@ -169,35 +169,24 @@
 
     // Helper: ângulo atual está revelado?
     function isAngleRevealed(deg) {
-      // conside ra revelado se houver algum item em 'revealed' dentro da tolerância de +/- 0.5°
       return revealed.some(r => Math.abs(r - deg) <= 0.5);
     }
 
     // ==================== Textos ====================
     const introLines = [
-`Oi! Eu sou o Cosmos, um pequeno guardião de órbita. 🌌
-Ontem, uma tempestade de dados rasgou o céu e... POOF! 💥 o nosso Círculo Trigonométrico se despedaçou!`,
+`Oi! Eu sou o Cosmos, um pequeno guardião de órbita. 🌌\nOntem, uma tempestade de dados rasgou o céu e... POOF! 💥 o nosso Círculo Trigonométrico se despedaçou!`,
 `Esse círculo é muito importante! Ele é como um mapa cósmico onde cada ponto conta a história de um ângulo. ⭕`,
 `Você já conhece os ângulos, né? Pois bem, aqui no meu mundo, a gente também fala uma outra língua: a dos radianos! Eles são como uma tradução mágica dos ângulos — outra forma de medir o mesmo giro, o mesmo caminho pelo círculo.`,
 `E tem mais! Cada pontinho desse círculo guarda uma coordenada especial, formada por dois números: o cosseno e o seno. Juntos, eles dizem exatamente onde o ângulo mora dentro do círculo.`,
-`Ah, e o mais incrível: o nosso círculo tem raio igual a 1. ✨
-Isso faz dele um círculo perfeito — um lugar onde cada posição já mostra o valor exato das coordenadas, sem precisar de nenhuma conta complicada!`,
+`Ah, e o mais incrível: o nosso círculo tem raio igual a 1. ✨\nIsso faz dele um círculo perfeito — um lugar onde cada posição já mostra o valor exato das coordenadas, sem precisar de nenhuma conta complicada!`,
 `Então... que tal me ajudar a reconstruir o Círculo Trigonométrico e devolver a harmonia ao cosmos? 🚀`
     ];
 
     const explicacaoRadianos =
-`Como eu tinha dito para você, aqui no nosso universo, os ângulos também têm outro nome? Nós chamamos eles de radianos!
-Um radiano é uma forma de medir ângulos usando o próprio raio do círculo.
-Imagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos 1 radiano.
-E sabe o que é ainda mais incrível? ✨
-π radianos (pi radianos) equivalem exatamente a 180°!
-Isso quer dizer que meio círculo — de 0° até 180° — é igual a π radianos.`;
+`Como eu tinha dito para você, aqui no nosso universo, os ângulos também têm outro nome? Nós chamamos eles de radianos!\nUm radiano é uma forma de medir ângulos usando o próprio raio do círculo.\nImagine que o raio se enrola ao redor do círculo — quando o comprimento do arco é igual ao do raio, temos 1 radiano.\nE sabe o que é ainda mais incrível? ✨\nπ radianos (pi radianos) equivalem exatamente a 180°!\nIsso quer dizer que meio círculo — de 0° até 180° — é igual a π radianos.`;
 
     const explicacaoCoordenadas =
-`Cada ponto do nosso círculo tem uma coordenada especial — dois números mágicos: o cosseno (cos) e o seno (sen).
-O cosseno representa o quanto o ponto anda no eixo x (para os lados), e o seno mostra o quanto ele sobe ou desce no eixo y.
-Como o raio do círculo é 1, esses valores sempre ficam entre -1 e 1.
-Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
+`Cada ponto do nosso círculo tem uma coordenada especial — dois números mágicos: o cosseno (cos) e o seno (sen).\nO cosseno representa o quanto o ponto anda no eixo x (para os lados), e o seno mostra o quanto ele sobe ou desce no eixo y.\nComo o raio do círculo é 1, esses valores sempre ficam entre -1 e 1.\nAssim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
 
     // ==================== DOM helpers ====================
     const $title = document.getElementById('title');
@@ -208,7 +197,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
     const $content = document.getElementById('content');
     const setMessage = (t) => $message.textContent = t;
 
-    // Atualiza os avisos em tempo real
     function renderWarningsUI(a) {
       const warns = (phase===1||phase===2||phase===99) ? regionWarnings(a) : [];
       $warnings.innerHTML = warns.length
@@ -224,14 +212,13 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
       $warnings.innerHTML = "";
       $objective.textContent = "";
 
-      // Removida a dica de teclas da tela inicial
+      // Removido o botão de Modo Livre aqui (só aparece no final)
       $content.innerHTML = `
         <div class="row">
           <div style="display:flex;gap:12px;flex-wrap:wrap">
             <button class="btn slate" id="btnBack" ${introStep===0?"disabled":""}>Voltar</button>
             <button class="btn" id="btnNext">${introStep<introLines.length-1 ? "Avançar" : "Começar reconstrução"}</button>
           </div>
-          <button class="btn green" id="btnLivre" title="Explorar sem objetivos">Modo Livre</button>
         </div>
       `;
 
@@ -240,7 +227,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
         if (introStep < introLines.length-1) { introStep++; buildIntro(); }
         else { phase = 1; setMessage("Vamos reconstruir o círculo. Gire a seta até o primeiro ponto — eu aviso quando estiver perto!"); buildPhaseCircle(); }
       });
-      document.getElementById('btnLivre').addEventListener('click', () => { phase = 99; angle = 0; setMessage("Modo livre: explore ângulos, radianos e projeções à vontade."); buildPhaseCircle(); });
     }
 
     // ============ Render do círculo ============
@@ -333,7 +319,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
         <line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="${pointerColor}" stroke-width="2.5"/>
         <circle cx="${x}" cy="${y}" r="7.5" fill="${pointerColor}" stroke="#fff"/>
 
-        <!-- Badge do ângulo atual (controlado por showAngleBadge) -->
         ${showAngleBadge ? `
           <g style="pointer-events:none;">
             <rect x="${x+10}" y="${y-28}" rx="8" ry="8" width="68" height="24" fill="${pointerColor}" opacity=".92"/>
@@ -349,10 +334,11 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
                         : (phase===2) ? "Capítulo 2 — Irmãos do outro lado"
                         : (phase===3) ? "Capítulo 3 — A tradução em radianos"
                         : (phase===4) ? "Capítulo 4 — As coordenadas do cosmos"
+                        : (phase===5) ? "Epílogo — Harmonia Restaurada"
                         : (phase===99) ? "Modo Livre — Exploração"
                         : "";
       $title.firstChild.textContent = phaseTitle + ' ';
-      $modePill.textContent = phase===99 ? 'Livre' : 'Jornada';
+      $modePill.textContent = (phase===99) ? 'Livre' : 'Jornada';
 
       const target = currentTarget();
       renderWarningsUI(angle);
@@ -368,9 +354,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
       const stg = proximityStage(angle, target);
       const confirmColor = stg==='perfect' ? 'green' : stg==='near' ? 'orange' : 'slate';
 
-      // Regras de exibição:
-      // - Modo livre (99): sempre mostra o ângulo no badge e na HUD.
-      // - Jornada: só mostra se o ângulo atual já foi revelado (confirmado).
       const showBadge = (phase===99) || isAngleRevealed(angle);
       const showHudAngle = (phase===99) || isAngleRevealed(angle);
 
@@ -391,7 +374,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
               <div style="display:flex;gap:8px">
                 <button class="btn slate" id="btnReset">Zerar</button>
                 ${phase===99 ? '' : `<button class="btn ${confirmColor}" id="confirmBtn">Confirmar posição</button>`}
-                <button class="btn" id="btnToggleLivre">${phase===99 ? 'Voltar à Jornada' : 'Modo Livre'}</button>
               </div>
             </div>
           </div>
@@ -434,12 +416,6 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
         updateHUD();
       });
 
-      document.getElementById('btnToggleLivre').addEventListener('click', () => {
-        if (phase===99) { phase = (revealed.length?3:1); setMessage('De volta à jornada.'); }
-        else { phase = 99; setMessage('Modo livre ativado.'); }
-        buildPhaseCircle();
-      });
-
       if (phase!==99) {
         document.getElementById('confirmBtn').addEventListener('click', () => {
           if (target==null) return;
@@ -449,8 +425,7 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
             const next = idx + 1;
 
             // após revelar, atualiza HUD/badge imediatamente
-            const show = true;
-            document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target, show);
+            document.getElementById('svgWrap').innerHTML = circleSVG(angle, revealed, target, true);
             const degOut = document.getElementById('degOut'); if (degOut) degOut.textContent = angle;
 
             if (phase===1 && next >= seqNotaveis.length) {
@@ -524,11 +499,9 @@ Assim, cada posição no círculo revela exatamente onde o ângulo vive! 🌠`;
         <p class="panel" style="margin:0 0 10px 0; white-space:pre-line;">${explicacaoCoordenadas}</p>
         <div class="panel">${revealed.slice().sort((a,b)=>a-b).map(d => `• ${d}° → <b>${COORD(d)}</b>`).join("<br/>")}</div>
         <div style="display:flex;justify-content:space-between;margin-top:12px;gap:8px;flex-wrap:wrap">
-          <button class="btn" id="btnLivre2">Entrar no Modo Livre</button>
           <button class="btn" id="btnFinal">Finalizar jornada</button>
         </div>
       `;
-      document.getElementById('btnLivre2').addEventListener('click', () => { phase = 99; buildPhaseCircle(); });
       document.getElementById('btnFinal').addEventListener('click', () => { phase = 5; setMessage("🌟 Círculo restaurado! Você dominou ângulos notáveis, irmãos, radianos e coordenadas. Parabéns!"); buildFinal(); });
     }
 
